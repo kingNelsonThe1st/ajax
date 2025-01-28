@@ -85,22 +85,18 @@ async function getData(category: string) {
         name,
         "slug": slug.current,
         "categoryName": category->name
-      }`;
+    }`;
 
-  const data = await client.fetch(query);
-
-  return data;
+  return client.fetch(query);
 }
 
 export const dynamic = "force-dynamic";
 
-interface CategoryPageProps {
-  params: {
-    category: string;
-  };
-}
-
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({
+  params,
+}: {
+  params: { category: string };
+}) {
   const data: simplifiedProduct[] = await getData(params.category);
 
   return (
