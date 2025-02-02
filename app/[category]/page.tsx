@@ -1,10 +1,10 @@
 // import Link from "next/link";
-// import { simplifiedProduct } from "../interface";
-// import { client } from "../lib/sanity";
+// import { simplifiedProduct } from "@/app/interface";
+// import { client } from "@/app/lib/sanity";
 // import Image from "next/image";
 
-// async function getData(cateogry: string) {
-//   const query = `*[_type == "product" && category->name == "${cateogry}"] {
+// async function getData(category: string) {
+//   const query = `*[_type == "product" && category->name == "${category}"] {
 //         _id,
 //           "imageUrl": images[0].asset->url,
 //           price,
@@ -73,11 +73,13 @@
 // }
 
 import Link from "next/link";
-import { simplifiedProduct } from "../interface";
-import { client } from "../lib/sanity";
+import { simplifiedProduct } from "@/app/interface";
+import { client } from "@/app/lib/sanity";
 import Image from "next/image";
 
 async function getData(category: string) {
+  if (!category) return []; // ✅ Prevents fetching if category is undefined
+
   const query = `*[_type == "product" && category->name == "${category}"] {
         _id,
         "imageUrl": images[0].asset->url,
@@ -85,9 +87,9 @@ async function getData(category: string) {
         name,
         "slug": slug.current,
         "categoryName": category->name
-    }`;
+      }`;
 
-  return client.fetch(query);
+  return await client.fetch(query);
 }
 
 export const dynamic = "force-dynamic";
@@ -95,7 +97,7 @@ export const dynamic = "force-dynamic";
 export default async function CategoryPage({
   params,
 }: {
-  params: { category: string };
+  params: Awaited<{ category: string }>;
 }) {
   const data: simplifiedProduct[] = await getData(params.category);
 
@@ -124,7 +126,9 @@ export default async function CategoryPage({
               <div className="mt-4 flex justify-between">
                 <div>
                   <h3 className="text-sm text-gray-700">
-                    <Link href={`/product/${product.slug}`}>{product.name}</Link>
+                    <Link href={`/product/${product.slug}`}>
+                      {product.name}
+                    </Link>
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     {product.categoryName}
